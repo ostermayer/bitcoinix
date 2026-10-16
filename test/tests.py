@@ -398,7 +398,45 @@ def _():
 @test("restart-bitcoind")
 def _():
     # Sanity-check system by restarting bitcoind.
-    succeed("systemctl restart bitcoind")
+    #
+    # lnd, electrs and clightning `want` bitcoind instead of `require` it. With
+    # `requires`, systemd stops them with bitcoind and nothing starts them again
+    # after a `nixos-rebuild switch` that restarts bitcoind.
+    # - lnd keeps running through the outage and reconnects.
+    # - A synced lightningd retries bitcoind through bcli and keeps running. During
+    #   startup a bitcoind outage is fatal for it; `Restart=on-failure` brings it
+    #   back. Only the regtest scenarios have a synced lightningd.
+    # - electrs exits ("sync failed") and comes back through `Restart=on-failure`.
+    # Only check units that are running at this point (`stop-electrs` runs
+    # earlier in some scenarios).
+    dependents = [
+        unit for unit in ["lnd", "clightning", "electrs"]
+        if unit in enabled_tests and machine.execute(f"systemctl is-active {unit}")[0] == 0
+    ]
+    keep_running = [
+        unit for unit in dependents
+        if unit == "lnd" or (unit == "clightning" and "regtest" in enabled_tests)
+    ]
+
+    def invocation_id(unit):
+        return succeed(f"systemctl show -P InvocationID {unit}").strip()
+
+    def assert_dependents_up():
+        for unit in dependents:
+            machine.wait_for_unit(unit)
+        for unit in keep_running:
+            assert invocation_id(unit) == before[unit], f"{unit} was restarted with bitcoind"
+
+    before = {unit: invocation_id(unit) for unit in keep_running}
+    succeed("systemctl stop bitcoind")
+    for unit in keep_running:
+        succeed(f"systemctl is-active {unit}")
+    succeed("systemctl start bitcoind")
+    machine.wait_until_succeeds("runuser -u operator -- bitcoin-cli getnetworkinfo")
+    assert_dependents_up()
+    # Give the dependents time to reconnect, then check they are still up
+    machine.sleep(15)
+    assert_dependents_up()
 
 @test("regtest")
 def _():
