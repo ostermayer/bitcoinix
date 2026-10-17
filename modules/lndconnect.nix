@@ -272,7 +272,7 @@ in {
             }
           )];
 
-          # clightning-rest always binds to all interfaces
+          # Don't change `clightning-rest.address`. Exposing the REST API must be an explicit choice.
         }
 
         (mkIf clightning-rest.lndconnect.onion {

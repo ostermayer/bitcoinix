@@ -131,6 +131,11 @@ in {
         after = wants;
       };
 
+      # clightning-rest binds to `serverAddress`, which only exists once wg-nb is up
+      clightning-rest = mkIf lndconnect-clightning {
+        after = [ "wireguard-wg-nb.service" ];
+      };
+
       # HACK: Modify start/stop scripts of the peer setup service to read
       # the pubkey from a secrets file.
       wireguard-wg-nb-peer-peer0 = let
@@ -204,7 +209,7 @@ in {
     services.clightning.tor.enforce = mkIf lnconnect-clnrest false;
 
     services.clightning-rest = mkIf lndconnect-clightning {
-      # clightning-rest always listens on "0.0.0.0"
+      address = serverAddress;
       tor.enforce = false;
     };
 

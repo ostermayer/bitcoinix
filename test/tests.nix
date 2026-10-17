@@ -71,6 +71,9 @@ let
       in map (plugin: pluginPkgs.${plugin}.path) enabled;
 
       tests.clightning-rest = cfg.clightning-rest.enable;
+      test.data.clightning-rest = {
+        inherit (cfg.clightning-rest) address port docPort;
+      };
 
       tests.rtl = cfg.rtl.enable;
       services.rtl = {

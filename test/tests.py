@@ -288,6 +288,15 @@ def _():
     machine.wait_until_succeeds(
         log_has_string("clightning-rest", "cl-rest api server is ready and listening")
     )
+    # c-lightning-REST listens on every interface unless BIND is set
+    cfg = test_data["clightning-rest"]
+    address = cfg["address"]
+    in_netns = "ip netns exec nb-clightning-rest " if "netns-isolation" in enabled_tests else ""
+    for port in (cfg["port"], cfg["docPort"]):
+        wait_for_open_port(address, port)
+        listeners = succeed(f"{in_netns}ss -ltnH 'sport = :{port}' | awk '{{print $4}}' | sort -u")
+        assert not re.search(r"(^|\n)(0\.0\.0\.0|\*|\[::\]):", listeners), listeners
+        assert listeners == f"{address}:{port}\n", listeners
 
 @test("mempool")
 def _():
