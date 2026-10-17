@@ -67,7 +67,15 @@ in {
 
     systemd.services.electrs = {
       wantedBy = [ "multi-user.target" ];
-      requires = [ "bitcoind.service" ];
+      # `wants`, not `requires`: with a hard `requires`, every bitcoind restart
+      # (e.g. a deploy that touches bitcoin.conf) stopped electrs, and
+      # `nixos-rebuild switch` did not bring it back, so Electrum clients stayed
+      # cut off until a manual start. electrs itself exits when its backend
+      # disappears and comes back through `Restart = "on-failure"` once
+      # bitcoind is up again. `after` still orders electrs behind bitcoind at
+      # boot; `wants` pulls bitcoind in without the cascade-stop. Mirrors the
+      # lnd change above.
+      wants = [ "bitcoind.service" ];
       after = [ "bitcoind.service" "nix-bitcoin-secrets.target" ];
       preStart = ''
         # electrs.toml holds the public RPC password, so create it with mode 600
