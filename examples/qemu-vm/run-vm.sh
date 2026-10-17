@@ -3,8 +3,9 @@ qemuDir=$(cd "${BASH_SOURCE[0]%/*}" && pwd)
 # shellcheck disable=SC1091
 source "$qemuDir/wait-until.sh"
 
-tmpDir=/tmp/nix-bitcoin-qemu-vm
-mkdir -p "$tmpDir"
+# A private directory: a fixed path under /tmp lets another local user
+# pre-create it and swap the VM link or disk image before they are used.
+tmpDir=$(mktemp -d /tmp/nix-bitcoin-qemu-vm.XXXXXX)
 
 # Cleanup on exit
 cleanup() {
