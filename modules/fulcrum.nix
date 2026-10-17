@@ -114,10 +114,12 @@ in {
       wants = [ "bitcoind.service" ];
       after = [ "bitcoind.service" "nix-bitcoin-secrets.target" ];
       preStart = ''
-        {
+        # fulcrum.conf holds the public RPC password. Do not rely on the data
+        # directory mode alone to protect it.
+        install -m 600 <(
           cat ${configFile}
           echo "rpcpassword = $(cat ${secretsDir}/bitcoin-rpcpassword-public)"
-        } > '${cfg.dataDir}/fulcrum.conf'
+        ) '${cfg.dataDir}/fulcrum.conf'
       '';
       serviceConfig = nbLib.defaultHardening // {
         ExecStart = "${config.nix-bitcoin.pkgs.fulcrum}/bin/Fulcrum '${cfg.dataDir}/fulcrum.conf'";
