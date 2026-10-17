@@ -469,6 +469,35 @@ def _():
         expect_clightning_log(rf"plugin-trustedcoin\b.*?\breturning block {num_blocks}")
 
 
+# Impure: restarts lnd. Runs after `lightning-loop`, `lightning-pool` and
+# `regtest`, so it does not disturb them.
+@test("lnd-restart-dependents")
+def _():
+    # lightning-loop and lightning-pool `want` lnd instead of `require` it.
+    # With `requires`, `systemctl stop lnd` stops them, and starting lnd
+    # again does not start them. Both exit when lnd goes away and come back
+    # through `Restart = "always"`.
+    dependents = test_data["lnd-restart-dependents"]
+
+    def invocation_id(unit):
+        return succeed(f"systemctl show -P InvocationID {unit}").strip()
+
+    for unit in dependents:
+        machine.wait_for_unit(unit)
+    succeed("systemctl stop lnd")
+    succeed("systemctl start lnd")
+    machine.wait_for_unit("lnd")
+    for unit in dependents:
+        machine.wait_for_unit(unit)
+    # The dependents must settle, not loop through restarts: same invocation
+    # after 15 s, and lnd must be reachable again.
+    settled = {unit: invocation_id(unit) for unit in dependents}
+    machine.sleep(15)
+    for unit in dependents:
+        machine.wait_for_unit(unit)
+        assert invocation_id(unit) == settled[unit], f"{unit} restarted again after lnd came back"
+    machine.wait_until_succeeds("runuser -u operator -- lncli getinfo")
+
 if "netns-isolation" in enabled_tests:
     def ip(name):
         return test_data["netns"][name]["address"]
