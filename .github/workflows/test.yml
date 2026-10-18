@@ -46,6 +46,14 @@ jobs:
           - default
           - netns
           - netnsRegtest
+          - wireguard-lndconnect
+          - regtest
+          - full
+          - hardened
+          - secureNode
+          - lndPruned
+          - trustedcoin
+          - clightning-replication
     needs: build_test_drivers
     if: needs.build_test_drivers.outputs.run_scenario_tests == 'true'
     steps:
