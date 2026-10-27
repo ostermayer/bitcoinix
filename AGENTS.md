@@ -56,11 +56,12 @@ sudo ./test/run-tests.sh container          # fast container; needs systemd + ro
 ```
 
 - No scenario + explicit command ⇒ `default`; no args at all ⇒ the `basic` set.
-- `run-tests.sh` targets: `build vm debug container eval shellcheck flake examples all`.
+- `run-tests.sh` targets: `build vm debug container eval shellcheck flake examples
+  deploymentExamples all`.
 - `--copy-src` snapshots the source so edits during a run don't affect it.
 - CI (`.github/workflows/test.yml`, PRs + pushes to `master`) runs the `basic`
-  scenarios, `nix flake check --all-systems`, `test/nixos-search/ci-test.sh`, and
-  shellcheck. Builds are cached in the `bitcoinix` Cachix cache. The rulesets on `master`
+  scenarios, `nix flake check --all-systems`, `test/nixos-search/ci-test.sh`,
+  `test/ci/deployment-examples.sh`, and shellcheck. Builds are cached in the `bitcoinix` Cachix cache. The rulesets on `master`
   and release tags require the `ci_gate` job; add any new CI job to its `needs`.
 - `dev/` holds debugging helpers (`dev.sh`, `dev-features.sh`, `topics/`); see `dev/README.md`.
 
@@ -80,6 +81,16 @@ sudo ./test/run-tests.sh container          # fast container; needs systemd + ro
 - Only `x86_64-linux` and `aarch64-linux` are supported and tested.
 - No Nix formatter/linter is set up; `nix flake check` and `./test/shellcheck.sh`
   are the static checks. Shellcheck also covers shebang'd extensionless files.
+
+## Deployment examples
+
+`examples/flakes` (`nixos-rebuild --flake`) and `examples/colmena` are the supported
+deployment examples; krops (`examples/krops`) is legacy. The CI job `deployment_examples`
+builds each of them with its own tool against the checkout on every PR, via
+`test/ci/deployment-examples.sh` (locally: `./test/run-tests.sh deploymentExamples`).
+A new deployment example must be added to that script, so that CI tests it from the
+start. Example flakes name the main input `bitcoinix`, pin a release tag and commit no
+`flake.lock`; the script overrides the `bitcoinix` input.
 
 ## Adding a service module
 
@@ -127,8 +138,9 @@ For each entry:
 - The `message` says what changed and what to do. Put longer migration steps in
   `docs/upgrading.md` under "Upgrading to config version <version>" and refer to
   that section from the message.
-- Set `nix-bitcoin.configVersion` in `examples/configuration.nix` to that version
-  unless it already is.
+- Set `nix-bitcoin.configVersion` in `examples/configuration.nix` and in
+  `examples/colmena/nixos/configs/fullnode/configuration.nix` to that version unless it
+  already is. If the change applies to the Colmena node, CI fails until it is set.
 
 ## Documentation
 
