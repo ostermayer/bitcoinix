@@ -1,5 +1,5 @@
 {
-  description = "Colemna Hive configuration (fullnode)";
+  description = "Colmena hive with a bitcoinix node (fullnode)";
 
   inputs = {
     # Pin the latest release tag listed at https://github.com/bitcoinix/bitcoinix/tags
@@ -42,18 +42,6 @@
           nixpkgs = import inputs.nixpkgs {
             system = "x86_64-linux";
           };
-
-          specialArgs = {
-            system = "x86_64-linux";
-          };
-
-          nodeNixpkgs = {
-            fullnode = import inputs.nixpkgs {
-              system = "x86_64-linux";
-            };
-          };
-
-          nodeSpecialArgs = { };
         };
 
         defaults = {

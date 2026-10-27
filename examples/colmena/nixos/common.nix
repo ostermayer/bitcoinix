@@ -35,7 +35,7 @@
   # Set maximum number of NixOS generations
   boot.loader.grub.configurationLimit = lib.mkDefault 5;
 
-  time.timeZone = "Europe/Berlin";
+  time.timeZone = "UTC";
 
   programs = {
     bash.interactiveShellInit = "set -o vi";
