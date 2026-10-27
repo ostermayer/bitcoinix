@@ -22,15 +22,17 @@
   };
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Pin the latest release tag listed at https://github.com/bitcoinix/bitcoinix/tags
+    bitcoinix.url = "github:bitcoinix/bitcoinix/v0.1.2";
+
+    # Use the nixpkgs that bitcoinix is tested with
+    nixpkgs.follows = "bitcoinix/nixpkgs";
 
     colmena = {
-      url = "github:nix-community/colmena";
+      url = "github:nix-community/colmena/v0.5.0";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.stable.follows = "nixpkgs";
     };
-
-    bitcoinix.url = "github:bitcoinix/bitcoinix";
   };
 
   outputs =
@@ -109,14 +111,6 @@
               # The secrets are stored in /etc/nix-bitcoin-secrets on remote
               # node and must be backuped.
               generateSecrets = true;
-
-              # If you use a custom nixpkgs version for evaluating your system
-              # (instead of `nix-bitcoin.inputs.nixpkgs` like in this example),
-              # consider setting `useVersionLockedPkgs = true` to use the exact
-              # pkgs versions for nix-bitcoin services that are tested by
-              # nix-bitcoin. The downsides are increased evaluation times and
-              # increased system closure size.
-              useVersionLockedPkgs = true;
             };
           };
       };
