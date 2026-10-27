@@ -1,33 +1,43 @@
-# Example Deployment via Colmena
+# Deploying with Colmena
 
-This example uses [`colmena`](https://github.com/nix-community/colmena) as its
-deployment tool. The Colmena manual can be found
-[here](https://colmena.cli.rs/unstable/).
+This example deploys a bitcoinix node with [Colmena](https://github.com/nix-community/colmena)
+([manual](https://colmena.cli.rs/unstable/)). CI builds it on every pull request, so it
+works with the current bitcoinix.
 
-Note that there is **no need to set all the options** in the `nixos/common.nix`
-or `nixos/fullnode/{hardware-,}configuration.nix` modules. I cleaned up the
-code but kept the options that could be interesting to other users.
+The hive in [`flake.nix`](flake.nix) defines one node, `fullnode`: the
+[secure-node preset](../../modules/presets/secure-node.nix) with bitcoind, clightning with
+clnrest, RTL, mempool with fulcrum, an nginx reverse proxy for mempool, and backups.
 
-In any case, it will be necessary to review the entire configuration and adjust
-it according to your requirements, preferences, target environment, and
-hardware.
+| File | Contents |
+|---|---|
+| [`flake.nix`](flake.nix) | inputs, the hive, and a dev shell with `colmena` |
+| [`nixos/common.nix`](nixos/common.nix) | settings for every node: Nix, SSH, users |
+| [`nixos/configs/fullnode/configuration.nix`](nixos/configs/fullnode/configuration.nix) | the bitcoinix services |
+| [`nixos/configs/fullnode/hardware-configuration.nix`](nixos/configs/fullnode/hardware-configuration.nix) | disks and boot loader of a QEMU VM |
 
+## Usage
 
-## Basic Steps & Hints
+1. Copy this directory and adapt it. Look for `FIXME` and placeholders like `<your_pubkey>`:
+   - the root SSH keys in `nixos/common.nix`
+   - `deployment.targetHost` in `flake.nix`
+   - the interface names, the mempool domain and the ACME e-mail address in `configuration.nix`
+   - replace `hardware-configuration.nix` with the output of `nixos-generate-config` on your node
 
-**Enter the Nix environment**: Enable direnv (`direnv allow`) or run:
+2. Pin `bitcoinix` in `flake.nix` to the latest release tag and verify that tag
+   (see [Installation](../../docs/install.md)). Commit the `flake.lock` that Nix creates.
 
-```shell
-nix develop
-```
+3. Optional: use the bitcoinix binary cache with `cachix use bitcoinix`.
 
-Build and deploy the `fullnode` Colmena host configuration to the target node,
-and apply it **after boot**. In some cases, you can also switch the
-configuration directly by replacing the `boot` action with `switch`:
+4. Enter the dev shell with `nix develop` (or `direnv allow`) and deploy:
 
-```shell
-colmena apply --verbose --on "fullnode" boot
-....
-ssh fullnode.example.com
-reboot
-```
+   ```shell
+   colmena build --on fullnode            # build only
+   colmena apply --on fullnode boot       # activate on the next boot
+   ssh root@fullnode.example.com reboot
+   ```
+
+   Use `switch` instead of `boot` to activate the new configuration at once.
+   `buildOnTarget = true` builds on the node, which also allows deploying from macOS.
+
+bitcoinix generates its own secrets on the node (`nix-bitcoin.generateSecrets`), in
+`/etc/nix-bitcoin-secrets`. Back them up.
