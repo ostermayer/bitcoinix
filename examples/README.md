@@ -63,7 +63,7 @@ additional deployment configurations, including Colmena.
 ### Flakes
 
 Flakes make it easy to include `bitcoinix` in an existing NixOS config.
-The [flakes example](./flakes/flake.nix) shows how to use `nix-bitcoin` as an input to a system flake.
+The [flakes example](./flakes/flake.nix) shows how to use `bitcoinix` as an input to a system flake.
 
 ### Persistent container with Flakes
 

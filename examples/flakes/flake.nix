@@ -1,7 +1,7 @@
-# This is a system configuration template that uses nix-bitcoin.
+# This is a system configuration template that uses bitcoinix.
 #
 # You can adapt this to an existing system flake by copying the parts
-# relevant to nix-bitcoin.
+# relevant to bitcoinix.
 #
 # Make sure to check and edit all lines marked by 'FIXME:'
 
@@ -9,23 +9,23 @@
   description = "A basic bitcoinix node";
 
   # Pin the latest release tag listed at https://github.com/bitcoinix/bitcoinix/tags
-  inputs.nix-bitcoin.url = "github:bitcoinix/bitcoinix/v0.1.0";
+  inputs.bitcoinix.url = "github:bitcoinix/bitcoinix/v0.1.0";
 
-  inputs.nixpkgs.follows = "nix-bitcoin/nixpkgs";
-  inputs.nixpkgs-unstable.follows = "nix-bitcoin/nixpkgs-unstable";
+  inputs.nixpkgs.follows = "bitcoinix/nixpkgs";
+  inputs.nixpkgs-unstable.follows = "bitcoinix/nixpkgs-unstable";
 
-  outputs = { self, nixpkgs, nix-bitcoin, ... }: {
+  outputs = { self, nixpkgs, bitcoinix, ... }: {
 
     nixosConfigurations.mynode = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        nix-bitcoin.nixosModules.default
+        bitcoinix.nixosModules.default
 
         # Optional:
         # Import the secure-node preset, an opinionated config to enhance security
         # and privacy.
         #
-        # (nix-bitcoin + "/modules/presets/secure-node.nix")
+        # (bitcoinix + "/modules/presets/secure-node.nix")
 
         {
           # Automatically generate all secrets required by services.
@@ -37,7 +37,7 @@
           services.bitcoind.enable = true;
           services.clightning.enable = true;
 
-          # When using nix-bitcoin as part of a larger NixOS configuration, set the following to enable
+          # When using bitcoinix as part of a larger NixOS configuration, set the following to enable
           # interactive access to bitcoinix features (like bitcoin-cli) for your system's main user
           nix-bitcoin.operator = {
             enable = true;
@@ -55,7 +55,7 @@
           };
 
           # If you use a custom nixpkgs version for evaluating your system
-          # (instead of `nix-bitcoin.inputs.nixpkgs` like in this example),
+          # (instead of `bitcoinix.inputs.nixpkgs` like in this example),
           # consider setting `useVersionLockedPkgs = true` to use the exact pkgs
           # versions for bitcoinix services that are tested by bitcoinix.
           # The downsides are increased evaluation times and increased system
