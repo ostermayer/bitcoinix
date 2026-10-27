@@ -117,6 +117,19 @@ jobs:
       - name: Test make-release
         run: nix shell --inputs-from . nixpkgs#{git,openssh,gnutar} -c ./test/make-release-test.sh
 
+  # Deployment examples
+  # Builds every deployment example in examples/ with its deployment tool, against this
+  # checkout. A new deployment example must be added to test/ci/deployment-examples.sh.
+  deployment_examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702 # v31.11.2
+      - name: Use the bitcoinix binary cache
+        run: nix shell --inputs-from . nixpkgs#cachix -c cachix use bitcoinix
+      - name: Build the deployment examples
+        run: ./test/ci/deployment-examples.sh
+
   # Required CI gate
   # Job `ci_gate` is the status check that the rulesets on master and on release tags
   # require. The matrix jobs report as `test_scenario (<scenario>)` when they run and as
@@ -130,6 +143,7 @@ jobs:
       - shellcheck
       - nixos_search
       - release_tooling
+      - deployment_examples
     # Run even when a needed job failed, so that this check reports a failure instead of
     # being skipped (a skipped required check counts as passed)
     if: always()
@@ -143,6 +157,7 @@ jobs:
           SHELLCHECK: ${{ needs.shellcheck.result }}
           NIXOS_SEARCH: ${{ needs.nixos_search.result }}
           RELEASE_TOOLING: ${{ needs.release_tooling.result }}
+          DEPLOYMENT_EXAMPLES: ${{ needs.deployment_examples.result }}
         run: |
           echo "build_test_drivers: $BUILD_TEST_DRIVERS"
           echo "test_scenario: $TEST_SCENARIO"
@@ -150,10 +165,12 @@ jobs:
           echo "shellcheck: $SHELLCHECK"
           echo "nixos_search: $NIXOS_SEARCH"
           echo "release_tooling: $RELEASE_TOOLING"
+          echo "deployment_examples: $DEPLOYMENT_EXAMPLES"
           [[ $BUILD_TEST_DRIVERS == success &&
              $CHECK_FLAKE == success &&
              $SHELLCHECK == success &&
              $NIXOS_SEARCH == success &&
-             $RELEASE_TOOLING == success ]]
+             $RELEASE_TOOLING == success &&
+             $DEPLOYMENT_EXAMPLES == success ]]
           # `test_scenario` is skipped when all tests have already been built successfully
           [[ $TEST_SCENARIO == success || $TEST_SCENARIO == skipped ]]
