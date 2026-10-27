@@ -7,7 +7,7 @@
     ./hardware-configuration.nix
 
     # Common modules (common.nix included by all hosts in the `flake.nix`)
-    ../vm.nix
+    ../../vm.nix
   ];
 
   networking = {
@@ -70,7 +70,7 @@
     };
 
     # == CLN REST server
-    clightning-rest.enable = true;
+    clightning.plugins.clnrest.enable = true;
 
     ### RIDE THE LIGHTNING
     rtl.enable = true;
@@ -100,7 +100,14 @@
     # The nix-bitcoin release version that your config is compatible with. When
     # upgrading to a backwards-incompatible release, nix-bitcoin will display an
     # an error and provide hints for migrating your config to the new release.
-    configVersion = "0.0.139";
+    configVersion = "0.1.3";
+  };
+
+  # Let's Encrypt certificates for the nginx virtual hosts
+  security.acme = {
+    acceptTerms = true;
+    # FIXME: Set your e-mail address for certificate expiry notices
+    defaults.email = "admin@example.com";
   };
 
   # This value determines the NixOS release with which your system is to be

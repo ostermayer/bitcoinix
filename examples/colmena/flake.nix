@@ -79,7 +79,7 @@
         defaults = {
           imports = [
             # Include the common defaults to all machine configuration
-            ./nixos/configs/common.nix
+            ./nixos/common.nix
           ];
         };
 
