@@ -1,26 +1,6 @@
 {
   description = "Colemna Hive configuration (fullnode)";
 
-  # The nixConfig here only affects the flake itself, not the system
-  # configuration!
-  nixConfig = {
-    experimental-features = [
-      "nix-command"
-      "flakes"
-    ];
-
-    extra-substituters = [
-      "https://colmena.cachix.org"
-      "https://nix-community.cachix.org"
-      "https://bitcoinix.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "colmena.cachix.org-1:7BzpDnjjH8ki2CT3f6GdOk7QAzPOl+1t3LvTLXqYcSg="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "bitcoinix.cachix.org-1:DvEwg0KpxaYae9Hn3ptski7Bkv2xZAHMuzwF6xiH1T8="
-    ];
-  };
-
   inputs = {
     # Pin the latest release tag listed at https://github.com/bitcoinix/bitcoinix/tags
     bitcoinix.url = "github:bitcoinix/bitcoinix/v0.1.2";
@@ -115,11 +95,10 @@
           };
       };
 
-      # Create a dev shell when calling `nix develop`
+      # `nix develop` provides the colmena version that matches the hive
       devShells = forAllSystems (system: {
-        default = import ./shell.nix {
-          pkgs = inputs.nixpkgs.legacyPackages.${system};
-          inherit system self;
+        default = inputs.nixpkgs.legacyPackages.${system}.mkShell {
+          packages = [ inputs.colmena.packages.${system}.colmena ];
         };
       });
     };

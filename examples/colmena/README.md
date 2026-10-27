@@ -18,7 +18,7 @@ hardware.
 **Enter the Nix environment**: Enable direnv (`direnv allow`) or run:
 
 ```shell
-nix develop --accept-flake-config
+nix develop
 ```
 
 Build and deploy the `fullnode` Colmena host configuration to the target node,
@@ -26,7 +26,7 @@ and apply it **after boot**. In some cases, you can also switch the
 configuration directly by replacing the `boot` action with `switch`:
 
 ```shell
-colmena apply --verbose --on "fullnode" boot --nix-option accept-flake-config true
+colmena apply --verbose --on "fullnode" boot
 ....
 ssh fullnode.example.com
 reboot
