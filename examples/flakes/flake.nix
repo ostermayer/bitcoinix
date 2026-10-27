@@ -62,6 +62,20 @@
           # closure size.
           #
           # nix-bitcoin.useVersionLockedPkgs = true;
+
+          # FIXME: Replace these placeholders with your node's hardware configuration,
+          # e.g. by importing the hardware-configuration.nix that `nixos-generate-config`
+          # writes on the node.
+          boot.loader.grub.device = "/dev/sda";
+          fileSystems."/" = {
+            device = "/dev/disk/by-label/nixos";
+            fsType = "ext4";
+          };
+
+          # The NixOS release that your node was installed with.
+          # Read the comment on this option before changing it:
+          # https://search.nixos.org/options?show=system.stateVersion
+          system.stateVersion = "26.05";
         }
       ];
     };
