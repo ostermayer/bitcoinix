@@ -30,11 +30,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    agenix = {
-      url = "github:ryantm/agenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     bitcoinix.url = "github:bitcoinix/bitcoinix";
   };
 
@@ -83,8 +78,6 @@
           imports = [
             # Include the common defaults to all machine configuration
             ./nixos/configs/common.nix
-
-            inputs.agenix.nixosModules.default
           ];
         };
 
@@ -110,12 +103,6 @@
               # Load node configuration
               ./nixos/configs/${name}/configuration.nix
             ];
-
-            age.secrets = {
-              root_password = {
-                file = ./nixos/secrets/${name}/root_password.age;
-              };
-            };
 
             nix-bitcoin = {
               # Automatically generate all secrets required by services.

@@ -6,12 +6,8 @@
 let
   inherit (self.inputs.colmena.packages.${system}) colmena;
 
-  inputs = with pkgs; [
-    # To generate hashed user passwords
-    mkpasswd
-
+  inputs = [
     colmena
-    self.inputs.agenix.packages.${system}.agenix
   ];
 
   # pname/name may be absent on some derivations; skip those rather than
