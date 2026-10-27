@@ -54,6 +54,20 @@
             password = "a";
           };
 
+          # Deploying with `nixos-rebuild --target-host root@<node>` logs in as root over SSH.
+          # Keep SSH enabled and your key authorized, or the deployment locks you out.
+          services.openssh = {
+            enable = true;
+            settings = {
+              PasswordAuthentication = false;
+              KbdInteractiveAuthentication = false;
+            };
+          };
+          users.users.root.openssh.authorizedKeys.keys = [
+            # FIXME: Add your SSH public key
+            "ssh-ed25519 <your_pubkey>"
+          ];
+
           # If you use a custom nixpkgs version for evaluating your system
           # (instead of `bitcoinix.inputs.nixpkgs` like in this example),
           # consider setting `useVersionLockedPkgs = true` to use the exact pkgs
