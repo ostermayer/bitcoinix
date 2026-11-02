@@ -143,6 +143,15 @@ def test_lnd():
     assert_str_matches(cert_alt_names, '20.0.0.1')
     assert_str_matches(cert_alt_names, 'example.com')
 
+    # lnd 0.21.6 and later don't listen with Multipath TCP by default. Make sure
+    # no lnd socket shows up as an MPTCP listener. Look in lnd's namespace, and
+    # check that ss sees lnd there at all, so the test can't pass by looking in
+    # the wrong place.
+    netns = "ip netns exec nb-lnd " if "netns-isolation" in enabled_tests else ""
+    assert_str_matches(succeed(f"{netns}ss -ltnp"), '"lnd"')
+    mptcp_listeners = succeed(f"{netns}ss -Mlnp")
+    assert "lnd" not in mptcp_listeners, mptcp_listeners
+
 
 @test("charge-lnd")
 def test_charge_lnd():

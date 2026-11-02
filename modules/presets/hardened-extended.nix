@@ -34,6 +34,15 @@
     "net.ipv4.tcp_sack" = "0";
     "net.ipv4.tcp_dsack" = "0";
 
+    # Disable Multipath TCP. Go 1.24 and later listen with MPTCP by default, so
+    # Go daemons on the node (tailscale, caddy, ...) expose the MPTCP code paths
+    # without being asked. lnd stopped doing that in 0.21.6, but other daemons
+    # haven't. A node doesn't need MPTCP, and the exploit published for
+    # CVE-2026-98432 went through an MPTCP listener. The setting only applies
+    # to new sockets and netns-isolation copies it into the service namespaces
+    # when it sets them up, so reboot once after turning it on.
+    "net.mptcp.enabled" = "0";
+
     # Restrict usage of ptrace to only processes with the CAP_SYS_PTRACE
     # capability
     "kernel.yama.ptrace_scope" = "2";
