@@ -61,7 +61,8 @@ and uploads the full report as the `vulnix-report` artifact. Each finding shows 
 the CVSS v3 base score and its severity (Low below 4.0, Medium below 7.0, High below 9.0,
 Critical from 9.0), and whether the CVE is in CISA's
 [Known Exploited Vulnerabilities](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
-catalog. A CVE without a CVSS v3 score reads "unknown".
+catalog, read from CISA's GitHub mirror [cisagov/kev-data](https://github.com/cisagov/kev-data).
+A CVE without a CVSS v3 score reads "unknown".
 
 Maintainers can set the repository variable `CVE_SCAN_ISSUE` to the number of a pinned
 tracking issue. The job then writes its report into that issue below a `<!-- cve-scan-report -->`
