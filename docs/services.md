@@ -19,6 +19,13 @@ system is built from, with a `-dirty` suffix for a checkout with uncommitted cha
 It is `null` when the modules are imported without the bitcoinix flake; set
 `nix-bitcoin.revision` yourself in that case.
 
+Without arguments `nodeinfo` prints all entries. Arguments change that:
+```shell
+nodeinfo --version           # print only the bitcoinix revision
+nodeinfo bitcoind lnd        # print only these entries
+```
+See `nodeinfo --help`.
+
 `nodeinfo` and `jq` are included in the `secure-node.nix` preset. Without the preset,
 set `nix-bitcoin.nodeinfo.enable = true` and install `jq` for the example above.
 
