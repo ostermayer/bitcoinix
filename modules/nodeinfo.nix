@@ -36,6 +36,16 @@ let
 
   cfg = config.nix-bitcoin.nodeinfo;
   nbLib = config.nix-bitcoin.lib;
+  nbPkgs = config.nix-bitcoin.pkgs;
+
+  # The packages whose version nodeinfo shows for each service
+  servicePackages = {
+    inherit (nbPkgs) bitcoind electrs fulcrum rtl;
+    clightning = config.services.clightning.package;
+    lnd = config.services.lnd.package;
+    btcpayserver = config.services.btcpayserver.package;
+    mempool = config.services.mempool.package;
+  };
 
   # A JSON string is also a valid Python string literal
   pyStr = s: if s == null then "None" else builtins.toJSON s;
@@ -140,6 +150,9 @@ let
 
     mkInfoLong = { extraCode ? "", name, cfg, systemdServiceName ? name }: ''
       add_service("${name}", """
+    '' + optionalString (servicePackages ? ${name}) ''
+      info["version"] = ${pyStr (servicePackages.${name}.version or null)}
+    '' + ''
       info["local_address"] = "${nbLib.addressWithPort cfg.address cfg.port}"
     '' + mkIfOnionPort name (onionPort: ''
       info["onion_address"] = get_onion_address("${name}", ${onionPort})

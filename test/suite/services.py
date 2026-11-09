@@ -300,6 +300,7 @@ def test_nodeinfo():
     revision = "0123456789abcdef0123456789abcdef01234567"
     assert info["bitcoinix"]["revision"] == revision
     assert info["bitcoind"]["local_address"]
+    assert info["bitcoind"]["version"]
     assert_full_match("runuser -u operator -- nodeinfo --version", f"{revision}\n")
     assert list(succeed_json("runuser -u operator -- nodeinfo bitcoind")) == ["bitcoind"]
     machine.fail("runuser -u operator -- nodeinfo no-such-service")

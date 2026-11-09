@@ -19,6 +19,9 @@ system is built from, with a `-dirty` suffix for a checkout with uncommitted cha
 It is `null` when the modules are imported without the bitcoinix flake; set
 `nix-bitcoin.revision` yourself in that case.
 
+The entries of bitcoind, clightning, lnd, electrs, fulcrum, btcpayserver, rtl and mempool
+include the `version` of the package the service runs.
+
 Without arguments `nodeinfo` prints all entries. Arguments change that:
 ```shell
 nodeinfo --version           # print only the bitcoinix revision
